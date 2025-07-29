@@ -1,0 +1,39 @@
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
+using CheatEngineP1.Exceptions;
+
+namespace CheatEngineP1.Services;
+
+internal class ProcessCheatBase(string processName)
+{
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+
+    [DllImport("kernel32.dll")]
+    protected static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, int size, out int lpNumberOfBytesRead);
+    
+    private const int ProcessVmRead = 0x0010;
+    private const int ProcessQueryInformation = 0x0400;
+
+    private readonly Process? _process = Process
+        .GetProcessesByName(processName)
+        .FirstOrDefault();
+
+    private IntPtr? _processHandle;
+    
+    protected IntPtr OpenProcess()
+    {
+        EnsureProcessReady();
+        
+        if (_processHandle is null)
+            _processHandle = OpenProcess(ProcessVmRead | ProcessQueryInformation, false, _process!.Id);
+        
+        return (IntPtr)_processHandle;
+    }
+    
+    private void EnsureProcessReady()
+    {
+        if (_process is null)
+            throw new InValidProcessException();
+    }
+}
