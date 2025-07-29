@@ -15,7 +15,7 @@ internal class ProcessCheatBase(string processName)
     private const int ProcessVmRead = 0x0010;
     private const int ProcessQueryInformation = 0x0400;
 
-    private readonly Process? _process = Process
+    protected readonly Process? Process = Process
         .GetProcessesByName(processName)
         .FirstOrDefault();
 
@@ -26,14 +26,13 @@ internal class ProcessCheatBase(string processName)
         EnsureProcessReady();
         
         if (_processHandle is null)
-            _processHandle = OpenProcess(ProcessVmRead | ProcessQueryInformation, false, _process!.Id);
+            _processHandle = OpenProcess(ProcessVmRead | ProcessQueryInformation, false, Process!.Id);
         
         return (IntPtr)_processHandle;
     }
-    
     private void EnsureProcessReady()
     {
-        if (_process is null)
+        if (Process is null)
             throw new InValidProcessException();
     }
 }
