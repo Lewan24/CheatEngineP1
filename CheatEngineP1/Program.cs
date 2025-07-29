@@ -2,14 +2,26 @@
 using CheatEngineP1.Interfaces;
 using CheatEngineP1.Services;
 
-IProcessPointerAddressReader processAddressReader = new ProcessAddressCheat("Tutorial-i386");
-var pointerPath = new PointerPath(0x240600, [0x4B4]);
+ProcessCheat processCheat = new ProcessCheat("Tutorial-i386");
+IProcessMemoryReader processReader = processCheat;
+IProcessMemoryWriter processWriter = processCheat;
 
-var cts = new CancellationTokenSource();
-_ = processAddressReader.ReadPointerAddressValueInLoop(pointerPath, cts.Token);
+var step2HealthPointer = new ProcessMemoryPointerPath(0x240600, [0x4B4]);
 
+var healthValue = processReader.ReadPointerValue(step2HealthPointer);
+Console.WriteLine($"Health value: {healthValue}");
+
+Console.WriteLine("Click anything to randomize health and read once more...");
 Console.ReadKey();
 
-cts.Cancel();
+var newHealthValue = Random.Shared.Next(100, 2000);
+Console.WriteLine($"Setting health value to: {newHealthValue}");
+processWriter.WritePointerValue(step2HealthPointer, newHealthValue);
+
+healthValue = processReader.ReadPointerValue(step2HealthPointer);
+Console.WriteLine($"New Health value: {healthValue}");
+
+Console.WriteLine("\nClick anything to exit...");
+Console.ReadKey();
 
 Console.WriteLine("Thank you for using our Cheats.");

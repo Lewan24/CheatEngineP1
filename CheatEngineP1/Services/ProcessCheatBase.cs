@@ -12,7 +12,11 @@ internal class ProcessCheatBase(string processName)
     [DllImport("kernel32.dll")]
     protected static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, int size, out int lpNumberOfBytesRead);
     
+    [DllImport("kernel32.dll")]
+    protected static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, int size, out int lpNumberOfBytesWritten);
+    
     private const int ProcessVmRead = 0x0010;
+    private const int ProcessVmWrite = 0x0020;
     private const int ProcessQueryInformation = 0x0400;
 
     protected readonly Process? Process = Process
@@ -26,7 +30,7 @@ internal class ProcessCheatBase(string processName)
         EnsureProcessReady();
         
         if (_processHandle is null)
-            _processHandle = OpenProcess(ProcessVmRead | ProcessQueryInformation, false, Process!.Id);
+            _processHandle = OpenProcess(ProcessVmRead | ProcessVmWrite | ProcessQueryInformation, false, Process!.Id);
         
         return (IntPtr)_processHandle;
     }
