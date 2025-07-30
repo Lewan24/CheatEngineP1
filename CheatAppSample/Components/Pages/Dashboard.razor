@@ -45,6 +45,12 @@
     private ProcessMemoryPointerPath _eqFirstSlotPointer = new(0x08C29800, [0x178, 0x200, 0xB0, 0x30, 0x70, 0x0, 0x154]);
     private List<EqSlotQuantity> _eqSlots = new();
     private int _eqSlotsNumber = 6;
+
+    private ProcessMemoryPointerPath _hungerPointer = new(0x08C29800, [0x178, 0x170, 0xBB8, 0x130, 0x28, 0x128, 0x3FC]);
+    private readonly int _hungerMaxValue = 1120403456;
+    
+    private ProcessMemoryPointerPath _healthPointer = new(0x0, []);
+    private readonly int _healthMaxValue = 1;
     
     private bool _serviceStarted;
     
