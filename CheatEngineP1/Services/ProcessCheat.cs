@@ -12,9 +12,16 @@ internal sealed class ProcessCheat : ProcessCheatBase,
     {
         WriteValue((IntPtr)memory.TargetAddress, value);
     }
-    public void WritePointerValue<T>(ProcessMemoryPointerPath path, T value) where T : unmanaged
+    public void WritePointerValue<T>(ProcessMemoryPointerPath path, long? shift, T value) where T : unmanaged
     {
         var address = ResolvePointerAddress(path);
+        
+        if (shift is not null)
+        {
+            long shiftedAddress = address.ToInt64() - shift.Value;
+            address = new IntPtr(shiftedAddress);
+        }
+        
         WriteValue(address, value);
     }
 

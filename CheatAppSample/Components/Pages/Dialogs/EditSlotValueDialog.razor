@@ -1,0 +1,65 @@
+@using System.ComponentModel.DataAnnotations
+@using CheatEngineP1.Entities
+@using CheatEngineP1.Interfaces
+
+@inject ISnackbar SnackBar
+@inject IProcessMemoryWriter CheatWriterService
+@inject IProcessMemoryReader CheatReaderService
+
+<MudDialog>
+    <DialogContent>
+        <EditForm Model="@_changeSlotModel" OnValidSubmit="Submit">
+            <DataAnnotationsValidator/>
+            
+            <MudTextField @bind-Value="@_changeSlotModel.NewSlotValue" T="int" For="@(() => _changeSlotModel.NewSlotValue)" Label="New Value"
+                          InputMode="InputMode.numeric" InputType="InputType.Number"/>
+
+            <MudButton Color="Color.Success" Variant="Variant.Filled" ButtonType="ButtonType.Submit">Save</MudButton>
+        </EditForm>
+    </DialogContent>
+    
+    <DialogActions>
+        <MudButton OnClick="@Cancel">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code{
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+    
+    [Parameter] public ProcessMemoryPointerPath? SlotAddress { get; set; }
+    [Parameter] public long PointerShift { get; set; }
+
+    private ChangeSlotValueModel _changeSlotModel = new();
+    
+    private void Submit()
+    {
+        try
+        {
+            var actualSlotValue = CheatReaderService.ReadMemoryValue<int>(SlotAddress!, PointerShift);
+
+            if (actualSlotValue == 0)
+            {
+                SnackBar.Add("Can't edit empty eq slot.");
+                return;
+            }
+
+            CheatWriterService.WritePointerValue(SlotAddress!, PointerShift, _changeSlotModel.NewSlotValue);
+            
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception e)
+        {
+            SnackBar.Add(e.Message, Severity.Error);
+        }
+    }
+
+    private void Cancel()
+        => MudDialog.Cancel();
+
+    private record ChangeSlotValueModel
+    {
+        [Required]
+        [Range(1, 9999)]
+        public int NewSlotValue { get; set; }
+    }
+}
