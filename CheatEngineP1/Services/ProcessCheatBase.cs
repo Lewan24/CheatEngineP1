@@ -4,7 +4,7 @@ using CheatEngineP1.Exceptions;
 
 namespace CheatEngineP1.Services;
 
-internal class ProcessCheatBase(string processName)
+internal class ProcessCheatBase  : IDisposable
 {
     [DllImport("kernel32.dll")]
     private static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
@@ -19,11 +19,20 @@ internal class ProcessCheatBase(string processName)
     private const int ProcessVmWrite = 0x0020;
     private const int ProcessQueryInformation = 0x0400;
 
-    protected readonly Process? Process = Process
-        .GetProcessesByName(processName)
-        .FirstOrDefault();
+    protected Process? Process { get; private set; }
 
     private IntPtr? _processHandle;
+
+    public void Initialize(string processName)
+    {
+        if (Process is not null)
+            if (!Process.ProcessName.Equals(processName, StringComparison.OrdinalIgnoreCase))
+                Process.Dispose();
+        
+        Process = Process
+            .GetProcessesByName(processName)
+            .FirstOrDefault();
+    }
     
     protected IntPtr OpenProcess()
     {
@@ -38,5 +47,10 @@ internal class ProcessCheatBase(string processName)
     {
         if (Process is null)
             throw new InValidProcessException();
+    }
+
+    public void Dispose()
+    {
+        Process?.Dispose();
     }
 }

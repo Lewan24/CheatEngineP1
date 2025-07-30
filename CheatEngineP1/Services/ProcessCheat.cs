@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace CheatEngineP1.Services;
 
-internal sealed class ProcessCheat(string processName) : ProcessCheatBase(processName),
+internal sealed class ProcessCheat : ProcessCheatBase,
     IProcessMemoryReader,
     IProcessMemoryWriter
 {

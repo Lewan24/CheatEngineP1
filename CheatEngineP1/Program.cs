@@ -2,7 +2,9 @@
 using CheatEngineP1.Services;
 
 // Sample Game to test Cheat Service
-var processCheat = new ProcessCheat("Palworld-Win64-Shipping");
+var processCheat = new ProcessCheat();
+processCheat.Initialize("Palworld-Win64-Shipping");
+
 var spheresCountAddress = new ProcessMemoryPointerPath(0x08C29800, [0x178, 0x200, 0xB0, 0x30, 0x70, 0x118, 0x154]);
 
 var spheresCount = processCheat.ReadMemoryValue<int>(spheresCountAddress);
