@@ -4,6 +4,6 @@ namespace CheatEngineP1.Interfaces;
 
 public interface IProcessMemoryWriter
 {
-    void WriteAddressValue(ProcessMemoryAddress processMemory, int newValue);
-    void WritePointerValue(ProcessMemoryPointerPath processMemoryPointerPath, int newValue);
+    void WriteAddressValue<T>(ProcessMemoryAddress memory, T value) where T : unmanaged;
+    void WritePointerValue<T>(ProcessMemoryPointerPath path, T value) where T : unmanaged;
 }

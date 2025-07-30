@@ -4,8 +4,6 @@ namespace CheatEngineP1.Interfaces;
 
 internal interface IProcessMemoryReader
 {
-    Task ReadPointerValueInLoop(ProcessMemoryPointerPath processMemoryPointerPath, CancellationToken ct);
-    IntPtr ReadPointerValue(ProcessMemoryPointerPath processMemoryPointerPath);
-    Task ReadAddressValueInLoop(ProcessMemoryAddress processMemory, CancellationToken ct);
-    IntPtr ReadAddressValue(ProcessMemoryAddress processMemoryAddress);
+    Task ReadMemoryValueInLoop<T>(ProcessMemoryPointerPath path, CancellationToken ct) where T : unmanaged;
+    T ReadMemoryValue<T>(ProcessMemoryPointerPath path) where T : unmanaged;
 }

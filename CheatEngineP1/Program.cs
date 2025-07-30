@@ -1,25 +1,17 @@
 ﻿using CheatEngineP1.Entities;
-using CheatEngineP1.Interfaces;
 using CheatEngineP1.Services;
 
-ProcessCheat processCheat = new ProcessCheat("Tutorial-i386");
-IProcessMemoryReader processReader = processCheat;
-IProcessMemoryWriter processWriter = processCheat;
+// Sample Game to test Cheat Service
+var processCheat = new ProcessCheat("Palworld-Win64-Shipping");
+var spheresCountAddress = new ProcessMemoryPointerPath(0x08C29800, [0x178, 0x200, 0xB0, 0x30, 0x70, 0x118, 0x154]);
 
-var step2HealthPointer = new ProcessMemoryPointerPath(0x240600, [0x4B4]);
+var spheresCount = processCheat.ReadMemoryValue<int>(spheresCountAddress);
+Console.WriteLine($"Starting Spheres value: {spheresCount}");
 
-var healthValue = processReader.ReadPointerValue(step2HealthPointer);
-Console.WriteLine($"Health value: {healthValue}");
+processCheat.WritePointerValue(spheresCountAddress, 600);
 
-Console.WriteLine("Click anything to randomize health and read once more...");
-Console.ReadKey();
-
-var newHealthValue = Random.Shared.Next(100, 2000);
-Console.WriteLine($"Setting health value to: {newHealthValue}");
-processWriter.WritePointerValue(step2HealthPointer, newHealthValue);
-
-healthValue = processReader.ReadPointerValue(step2HealthPointer);
-Console.WriteLine($"New Health value: {healthValue}");
+spheresCount = processCheat.ReadMemoryValue<int>(spheresCountAddress);
+Console.WriteLine($"Final Spheres value: {spheresCount}");
 
 Console.WriteLine("\nClick anything to exit...");
 Console.ReadKey();

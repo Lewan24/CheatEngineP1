@@ -1,5 +1,6 @@
 ﻿using CheatEngineP1.Entities;
 using CheatEngineP1.Interfaces;
+using System.Runtime.InteropServices;
 
 namespace CheatEngineP1.Services;
 
@@ -7,68 +8,73 @@ internal sealed class ProcessCheat(string processName) : ProcessCheatBase(proces
     IProcessMemoryReader,
     IProcessMemoryWriter
 {
-    public void WriteAddressValue(ProcessMemoryAddress processMemory, int newValue)
+    public void WriteAddressValue<T>(ProcessMemoryAddress memory, T value) where T : unmanaged
     {
-        WriteInt32((IntPtr)processMemory.TargetAddress, newValue);
+        WriteValue((IntPtr)memory.TargetAddress, value);
     }
-    public void WritePointerValue(ProcessMemoryPointerPath processMemoryPointerPath, int newValue)
+    public void WritePointerValue<T>(ProcessMemoryPointerPath path, T value) where T : unmanaged
     {
-        var address = ResolvePointerAddress(processMemoryPointerPath);
-        WriteInt32(address, newValue);
+        var address = ResolvePointerAddress(path);
+        WriteValue(address, value);
+    }
+
+    public T ReadMemoryValue<T>(ProcessMemoryPointerPath path) where T : unmanaged
+    {
+        var address = ResolvePointerAddress(path);
+        return ReadValue<T>(address);
+    }
+    public async Task ReadMemoryValueInLoop<T>(ProcessMemoryPointerPath path, CancellationToken ct) where T : unmanaged
+    {
+        var address = ResolvePointerAddress(path);
+        await ReadAddressValueInLoop<T>(new ProcessMemoryAddress(address), ct);
     }
     
-    public async Task ReadPointerValueInLoop(ProcessMemoryPointerPath processMemoryPointerPath, CancellationToken ct)
+    private async Task ReadAddressValueInLoop<T>(ProcessMemoryAddress memory, CancellationToken ct) where T : unmanaged
     {
-        var desiredAddress = ResolvePointerAddress(processMemoryPointerPath);
-        await ReadAddressValueInLoop(new ProcessMemoryAddress(desiredAddress), ct);
-    }
-    public IntPtr ReadPointerValue(ProcessMemoryPointerPath processMemoryPointerPath)
-    {
-        var desiredAddress = ResolvePointerAddress(processMemoryPointerPath);
-        return ReadAddressValue(new ProcessMemoryAddress(desiredAddress));
-    }
-    
-    public async Task ReadAddressValueInLoop(ProcessMemoryAddress processMemory, CancellationToken ct)
-    {
-        while (ct.IsCancellationRequested == false)
+        while (!ct.IsCancellationRequested)
         {
             Console.Clear();
 
-            var result = ReadAddressValue(processMemory);
+            var result = ReadAddressValue<T>(memory);
+            Console.WriteLine($"[Value @ {memory.TargetAddress:X}] = {result}");
 
-            Console.WriteLine(result);
             Console.WriteLine("\nPress any key to stop and exit...");
-            
-            await Task.Delay(100, ct);
+            await Task.Delay(200, ct);
         }
     }
-    public IntPtr ReadAddressValue(ProcessMemoryAddress processMemoryAddress) 
-        => ReadInt32((IntPtr)processMemoryAddress.TargetAddress);
-    
-    private IntPtr ResolvePointerAddress(ProcessMemoryPointerPath processMemoryPointerPath)
+    private T ReadAddressValue<T>(ProcessMemoryAddress memory) where T : unmanaged
     {
-        var baseAddress = Process!.MainModule!.BaseAddress.ToInt64() + processMemoryPointerPath.BaseOffset;
-        long currentAddress = baseAddress;
+        return ReadValue<T>((IntPtr)memory.TargetAddress);
+    }
 
-        foreach (var offset in processMemoryPointerPath.Offsets)
+    private IntPtr ResolvePointerAddress(ProcessMemoryPointerPath pointerPath)
+    {
+        long currentAddress = Process!.MainModule!.BaseAddress.ToInt64() + pointerPath.BaseOffset;
+
+        foreach (var offset in pointerPath.Offsets)
         {
-            int nextAddress = ReadInt32((IntPtr)currentAddress);
-            currentAddress = nextAddress + offset;
+            long ptr = ReadValue<long>((IntPtr)currentAddress);
+            currentAddress = ptr + offset;
         }
 
         return (IntPtr)currentAddress;
     }
-    private int ReadInt32(IntPtr address)
+    private T ReadValue<T>(IntPtr address) where T : unmanaged
     {
         var handle = OpenProcess();
-        byte[] buffer = new byte[4];
-        ReadProcessMemory(handle, address, buffer, buffer.Length, out _);
-        return BitConverter.ToInt32(buffer, 0);
+        int size = Marshal.SizeOf<T>();
+        byte[] buffer = new byte[size];
+
+        ReadProcessMemory(handle, address, buffer, size, out _);
+        return MemoryMarshal.Cast<byte, T>(buffer)[0];
     }
-    private void WriteInt32(IntPtr address, int value)
+    private void WriteValue<T>(IntPtr address, T value) where T : unmanaged
     {
         var handle = OpenProcess();
-        byte[] buffer = BitConverter.GetBytes(value);
-        WriteProcessMemory(handle, address, buffer, buffer.Length, out _);
+        int size = Marshal.SizeOf<T>();
+        byte[] buffer = new byte[size];
+
+        MemoryMarshal.Write(buffer, ref value);
+        WriteProcessMemory(handle, address, buffer, size, out _);
     }
 }
