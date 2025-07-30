@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using CheatEngineP1.Exceptions;
+using CheatEngineP1.Interfaces;
 
 namespace CheatEngineP1.Services;
 
-internal class ProcessCheatBase  : IDisposable
+internal class ProcessCheatBase  : IDisposable, IProcessInitializer
 {
     [DllImport("kernel32.dll")]
     private static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
@@ -29,6 +30,8 @@ internal class ProcessCheatBase  : IDisposable
             if (!Process.ProcessName.Equals(processName, StringComparison.OrdinalIgnoreCase))
                 Process.Dispose();
         
+        Console.WriteLine($"Initializing Process with name: {processName}");
+        
         Process = Process
             .GetProcessesByName(processName)
             .FirstOrDefault();
@@ -37,9 +40,12 @@ internal class ProcessCheatBase  : IDisposable
     protected IntPtr OpenProcess()
     {
         EnsureProcessReady();
-        
+
         if (_processHandle is null)
+        {
+            Console.WriteLine($"Opening process with name: {Process?.ProcessName}");
             _processHandle = OpenProcess(ProcessVmRead | ProcessVmWrite | ProcessQueryInformation, false, Process!.Id);
+        }
         
         return (IntPtr)_processHandle;
     }

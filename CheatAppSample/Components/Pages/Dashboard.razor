@@ -1,0 +1,78 @@
+﻿@using CheatAppSample.Data.Entities
+@using CheatEngineP1.Entities
+@using CheatEngineP1.Interfaces
+
+@inject IProcessMemoryReader CheatService
+@inject ISnackbar Snackbar
+
+@page "/"
+
+<MudContainer Class="mt-4 p-2 d-flex flex-column">
+    <MudContainer Class="d-flex flex-row justify-center gap-4">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@StartService" Disabled="@(_serviceStarted)">Start Service</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@StopService" Disabled="@(!_serviceStarted)">Stop Service</MudButton>
+    </MudContainer>
+
+    <MudPaper Elevation="5" Class="p-4 mt-4">
+        <MudGrid Justify="Justify.Center" Spacing="3">
+            @foreach (var eqSlot in _eqSlots)
+            {
+                <MudItem xs="2">
+                    <MudPaper Class="p-4" Elevation="5">
+                        <MudText Class="mb-3">EQ Slot @eqSlot.EqSlotDisplayName</MudText>
+                    
+                        <MudText Align="Align.Center">@eqSlot.Quantity</MudText>
+                    </MudPaper>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
+@code{
+    private ProcessMemoryPointerPath _eqFirstSlotPointer = new(0x08C29800, [0x178, 0x200, 0xB0, 0x30, 0x70, 0x0, 0x154]);
+    private List<EqSlotQuantity> _eqSlots = new();
+    private int _eqSlotsNumber = 12;
+    
+    private bool _serviceStarted;
+    
+    protected override void OnInitialized()
+    {
+        CheatService.Initialize("Palworld-Win64-Shipping");
+        
+        for(int i = 1; i <= _eqSlotsNumber; i++)
+            _eqSlots.Add(new EqSlotQuantity(i.ToString()));
+    }
+
+    private async Task StartService()
+    {
+        _serviceStarted = true;
+        
+        try
+        {
+            while (_serviceStarted)
+            {
+                for (var i = 0; i < _eqSlots.Count; i++)
+                {
+                    var eqSlot = _eqSlots[i];
+                    eqSlot.Quantity = CheatService.ReadMemoryValue<int>(_eqFirstSlotPointer, i * 0x200);
+                    StateHasChanged();
+                }
+
+                await Task.Delay(200);
+            }
+        }
+        catch (Exception e)
+        {
+            StopService();
+            Snackbar.Add(e.Message, Severity.Error);
+        }
+    }
+    
+    private void StopService()
+    {
+        _serviceStarted = false;
+        StateHasChanged();
+    }
+
+}

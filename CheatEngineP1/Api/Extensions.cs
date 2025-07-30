@@ -8,8 +8,9 @@ public static class Extensions
 {
     public static IServiceCollection AddCheatEngineP1(this IServiceCollection services)
     {
-        services.AddSingleton<IProcessMemoryReader, ProcessCheat>();
-        services.AddSingleton<IProcessMemoryWriter, ProcessCheat>();
+        services.AddSingleton<ProcessCheat>();
+        services.AddSingleton<IProcessMemoryReader>(s => s.GetRequiredService<ProcessCheat>());
+        services.AddSingleton<IProcessMemoryWriter>(s => s.GetRequiredService<ProcessCheat>());
         
         return services;
     }

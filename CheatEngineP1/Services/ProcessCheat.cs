@@ -18,9 +18,16 @@ internal sealed class ProcessCheat : ProcessCheatBase,
         WriteValue(address, value);
     }
 
-    public T ReadMemoryValue<T>(ProcessMemoryPointerPath path) where T : unmanaged
+    public T ReadMemoryValue<T>(ProcessMemoryPointerPath path, long? shift = null) where T : unmanaged
     {
         var address = ResolvePointerAddress(path);
+        
+        if (shift is not null)
+        {
+            long shiftedAddress = address.ToInt64() - shift.Value;
+            address = new IntPtr(shiftedAddress);
+        }
+        
         return ReadValue<T>(address);
     }
     public async Task ReadMemoryValueInLoop<T>(ProcessMemoryPointerPath path, CancellationToken ct) where T : unmanaged
