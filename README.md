@@ -5,58 +5,78 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows%2064--bit-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-## ✨ O Projekcie
+## ✨ About the Project
 
-**Palworld Cheater** to aplikacja desktopowa oparta o .NET 9 oraz MAUI, umożliwiająca:
-- **Podgląd stanu ekwipunku** pierwszych **6 slotów postaci**
-- **Modyfikację ilości przedmiotów** znajdujących się w tych slotach w czasie rzeczywistym
-- Działanie w oparciu o **pointery** bez potrzeby ręcznego szukania adresów za każdym razem
+**Palworld Cheater** is a desktop application built with **.NET 9** and **MAUI** that allows you to:
 
----
-
-## 🧠 Edukacyjny Cel
-
-Projekt powstał w celach **edukacyjnych**, by zgłębić:
-- techniki analizy pamięci procesów (reverse engineering light)
-- działanie pointerów i offsetów w aplikacjach natywnych
-- integrację MAUI z backendem pracującym na pamięci innego procesu
-- tworzenie rozdzielnych warstw UI / logicznej / niskopoziomowej (inspiracja DDD)
-
-Nie zachęcamy do wykorzystywania projektu w celu uzyskania nieuczciwej przewagi w grze online
+- 🔍 **View the inventory state** of the first **6 item slots**
+- 🛠 **Modify item amounts** in those slots in real-time
+- 🎯 Use **memory pointers** to reliably access game data (no need to re-scan addresses manually)
 
 ---
 
-## 🛠️ Technologie
+## 🧠 Educational Purpose
+
+This project was created for **educational purposes only**, with goals including:
+
+- Learning how to analyze process memory (reverse engineering basics)
+- Understanding pointer chains and offset navigation
+- Integrating MAUI UI with low-level memory interaction logic
+- Practicing clean separation of concerns (inspired by DDD-like structure)
+
+> ⚠️ This tool is designed only for **offline/single-player use**.  
+> Do **not** use it in online environments or multiplayer modes.
+
+---
+
+## 🛠️ Technologies Used
 
 - [.NET 9](https://github.com/dotnet/core)
-- [MAUI](https://learn.microsoft.com/en-us/dotnet/maui/what-is-maui)
+- [MAUI (Multi-platform App UI)](https://learn.microsoft.com/en-us/dotnet/maui/what-is-maui)
 - C#
-- Windows 64-bit (ze wsparciem dla gier uruchamianych w architekturze x64)
+- Windows 64-bit (compatible with x64 architecture)
 
 ---
 
-## 📸 Zrzuty ekranu
+## 📸 Screenshots
 
-> *(Będą tu zrzuty ekranu, np. UI z ekwipunkiem lub edytorem wartości)*
-
----
-
-## 🚀 Funkcje
-
-- 🔍 **Auto-resolving pointerów** (brak potrzeby ręcznego odświeżania adresów)
-- 🧪 **Czytelna warstwa do odczytu/zapisu** danych w pamięci gry
-- 📊 **UI w MAUI** pozwalające na intuicyjne podejrzenie i edytowanie wartości
-- 💡 **Generyczne API** do pracy z `unmanaged` typami (`int`, `float`, `long`, itd.)
+> *(Screenshots coming soon: e.g., inventory preview and value editor views)*
 
 ---
 
-## 📦 Jak uruchomić
+## 🚀 Features
 
-1. Upewnij się, że masz zainstalowane:
+- 🧭 **Automatic pointer resolution** (no manual updates needed)
+- 📖 **Clear API for reading/writing** unmanaged memory values
+- 🧩 **User-friendly MAUI interface** for interacting with game data
+- 🔧 **Generic API support** for `unmanaged` types (`int`, `float`, `long`, etc.)
+
+---
+
+## 📦 How to Run
+
+You can run the project in two ways:
+
+### 🧑‍💻 Option 1 – Build from source
+
+1. Make sure you have installed:
    - [.NET 9 SDK (Preview)](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
-   - Visual Studio z wsparciem dla MAUI
+   - Visual Studio **or** JetBrains Rider with **MAUI support** enabled
 
-2. Sklonuj repozytorium:
+2. Clone the repository:
    ```bash
    git clone https://github.com/Lewan24/CheatEngineP1.git
    cd CheatEngineP1
+   ```
+3. Open the solution file (CheatEngineP1.sln) in your IDE.
+4. Set the MAUI project as startup and run the app.
+   ```bash
+   💡 Make sure the game (Palworld) is already running before you start the cheat tool.
+   ```
+
+### 📦 Option 2 – Download Prebuilt App
+Visit the Releases section of this repository and download the latest version of the compiled application.
+
+1. Unzip the package
+2. Run the .exe file directly
+3. Enjoy full functionality without building from source!
