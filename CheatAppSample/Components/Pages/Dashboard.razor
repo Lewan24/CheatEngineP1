@@ -14,9 +14,48 @@
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@StopService" Disabled="@(!ServiceDataUpdater.IsServiceStarted)">Stop Service</MudButton>
     </MudContainer>
 
+    <MudContainer Class="mt-6 d-flex flex-row justify-content-sm-center justify-content-lg-between gap-4 flex-wrap p-0">
+        <MudPaper Elevation="5" Class="p-4">
+            <MudGrid Justify="Justify.Center">
+                <MudItem xs="12">
+                    <MudText Align="Align.Center" Typo="Typo.h5">Current stats</MudText>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudCard Elevation="5">
+                        <MudCardHeader Class="d-flex justify-center text-center">
+                            <MudText Typo="Typo.body1">Current Health</MudText>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText Align="Align.Center">0</MudText>
+                        </MudCardContent>
+                        <MudCardActions Class="d-flex justify-center">
+                            <MudButton Color="Color.Success" Variant="Variant.Filled" Disabled="@(!ServiceDataUpdater.IsServiceStarted)">Heal</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudCard Elevation="5">
+                        <MudCardHeader Class="d-flex justify-center text-center">
+                            <MudText Typo="Typo.body1">Current Hunger</MudText>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText Align="Align.Center">0</MudText>
+                        </MudCardContent>
+                        <MudCardActions Class="d-flex justify-center">
+                            <MudButton Color="Color.Success" Variant="Variant.Filled" Disabled="@(!ServiceDataUpdater.IsServiceStarted)">Feed</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+        
+        <GodmodeSettingsComponent/>
+    </MudContainer>
+    
     <EqManagerComponent />
     <CharacterStatsComponent />
-    <GodmodeSettingsComponent />
     
 </MudContainer>
 
