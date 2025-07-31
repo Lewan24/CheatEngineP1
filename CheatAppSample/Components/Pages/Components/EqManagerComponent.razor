@@ -1,0 +1,76 @@
+@using CheatAppSample.Components.Pages.Dialogs
+@using CheatAppSample.Data.Entities
+@using CheatAppSample.Data.Services
+@using CheatEngineP1.Entities
+@using CheatEngineP1.Interfaces
+
+@inject ServiceDataUpdater ServiceDataUpdater
+@inject IProcessMemoryReader CheatReaderService
+@inject IDialogService DialogService
+
+<MudPaper Elevation="5" Class="p-4 mt-4">
+    <MudGrid Justify="Justify.Center" Spacing="3">
+        <MudItem xs="12">
+            <MudText Align="Align.Center" Typo="Typo.h5">Equipment management</MudText>
+        </MudItem>
+            
+        @foreach (var eqSlot in _eqSlots)
+        {
+            <MudItem xs="6" sm="3" md="2">
+                <MudPaper Class="p-4" Elevation="5">
+                    <MudCard>
+                        <MudCardHeader>
+                            <MudText>EQ Slot @eqSlot.EqSlotDisplayName</MudText>
+                        </MudCardHeader>
+
+                        <MudCardContent>
+                            <MudText Align="Align.Center">@eqSlot.Quantity</MudText>
+                        </MudCardContent>
+
+                        <MudCardActions>
+                            <MudButton Disabled="@(!ServiceDataUpdater.IsServiceStarted || eqSlot.Quantity == 0)" Color="Color.Success" Variant="Variant.Filled" OnClick="@(() => OpenEditSlotValueDialog(eqSlot))">Change Value</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+</MudPaper>
+
+@code
+{
+    private ProcessMemoryPointerPath _eqFirstSlotPointer = new(0x08C29800, [0x178, 0x200, 0xB0, 0x30, 0x70, 0x0, 0x154]);
+    private List<EqSlotQuantity> _eqSlots = new();
+    private int _eqSlotsNumber = 6;
+
+    protected override void OnInitialized()
+    {
+        for(int i = 1; i <= _eqSlotsNumber; i++)
+            _eqSlots.Add(new EqSlotQuantity(i.ToString()));
+
+        ServiceDataUpdater.OnUpdate += ReadAndSetEqSlots;
+    }
+    
+    private void ReadAndSetEqSlots()
+    {
+        for (var i = 0; i < _eqSlots.Count; i++)
+        {
+            var eqSlot = _eqSlots[i];
+            eqSlot.Quantity = CheatReaderService.ReadMemoryValue<int>(_eqFirstSlotPointer, i * 0x200);
+            StateHasChanged();
+        }
+    }
+    
+    private async Task OpenEditSlotValueDialog(EqSlotQuantity eqSlot)
+    {
+        var itemSlot = int.Parse(eqSlot.EqSlotDisplayName) - 1;
+        
+        var dialogParameters = new DialogParameters<EditSlotValueDialog>
+        {
+            { x=> x.PointerShift, itemSlot * 0x200},
+            { x => x.SlotAddress, _eqFirstSlotPointer}
+        };
+
+        await DialogService.ShowAsync<EditSlotValueDialog>("Change Slot Value", dialogParameters);
+    }
+}

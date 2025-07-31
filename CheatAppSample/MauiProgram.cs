@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CheatAppSample.Data.Services;
+using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using CheatEngineP1.Api;
 
@@ -18,6 +19,7 @@ public static class MauiProgram
 
         builder.Services.AddCheatEngineP1();
 
+        builder.Services.AddSingleton<ServiceDataUpdater>();
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();

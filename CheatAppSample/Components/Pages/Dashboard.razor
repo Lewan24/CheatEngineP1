@@ -1,82 +1,41 @@
-﻿@using CheatAppSample.Components.Pages.Dialogs
-@using CheatAppSample.Data.Entities
-@using CheatEngineP1.Entities
-@using CheatEngineP1.Interfaces
+﻿@using CheatEngineP1.Interfaces
+@using CheatAppSample.Components.Pages.Components
+@using CheatAppSample.Data.Services
 
-@inject IProcessMemoryReader CheatService
+@inject IProcessMemoryReader CheatReaderService
+@inject ServiceDataUpdater ServiceDataUpdater
 @inject ISnackbar Snackbar
-@inject IDialogService DialogService
 
 @page "/"
 
-<MudContainer Class="mt-4 p-2 d-flex flex-column">
+<MudContainer Class="mt-4 p-2 d-flex flex-column align-items-center">
     <MudContainer Class="d-flex flex-row justify-center gap-4">
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@StartService" Disabled="@(_serviceStarted)">Start Service</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@StopService" Disabled="@(!_serviceStarted)">Stop Service</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@StartService" Disabled="@(ServiceDataUpdater.IsServiceStarted)">Start Service</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@StopService" Disabled="@(!ServiceDataUpdater.IsServiceStarted)">Stop Service</MudButton>
     </MudContainer>
 
-    <MudPaper Elevation="5" Class="p-4 mt-4">
-        <MudGrid Justify="Justify.Center" Spacing="3">
-            @foreach (var eqSlot in _eqSlots)
-            {
-                <MudItem xs="2">
-                    <MudPaper Class="p-4" Elevation="5">
-                        <MudCard>
-                            <MudCardHeader>
-                                <MudText>EQ Slot @eqSlot.EqSlotDisplayName</MudText>
-                            </MudCardHeader>
-                            
-                            <MudCardContent>
-                                <MudText Align="Align.Center">@eqSlot.Quantity</MudText>
-                            </MudCardContent>
-                            
-                            <MudCardActions>
-                                <MudButton Disabled="@(!_serviceStarted || eqSlot.Quantity == 0)" Color="Color.Success" Variant="Variant.Filled" OnClick="@(() => OpenEditSlotValueDialog(eqSlot))">Change Value</MudButton>
-                            </MudCardActions>
-                        </MudCard>
-                    </MudPaper>
-                </MudItem>
-            }
-        </MudGrid>
-    </MudPaper>
+    <EqManagerComponent />
+    <CharacterStatsComponent />
+    <GodmodeSettingsComponent />
+    
 </MudContainer>
 
 @code{
-    private ProcessMemoryPointerPath _eqFirstSlotPointer = new(0x08C29800, [0x178, 0x200, 0xB0, 0x30, 0x70, 0x0, 0x154]);
-    private List<EqSlotQuantity> _eqSlots = new();
-    private int _eqSlotsNumber = 6;
-
-    private ProcessMemoryPointerPath _hungerPointer = new(0x08C29800, [0x178, 0x170, 0xBB8, 0x130, 0x28, 0x128, 0x3FC]);
-    private readonly int _hungerMaxValue = 1120403456;
-    
-    private ProcessMemoryPointerPath _healthPointer = new(0x0, []);
-    private readonly int _healthMaxValue = 1;
-    
-    private bool _serviceStarted;
-    
     protected override void OnInitialized()
     {
-        CheatService.Initialize("Palworld-Win64-Shipping");
-        
-        for(int i = 1; i <= _eqSlotsNumber; i++)
-            _eqSlots.Add(new EqSlotQuantity(i.ToString()));
+        CheatReaderService.Initialize("Palworld-Win64-Shipping");
     }
 
     private async Task StartService()
     {
-        _serviceStarted = true;
+        ServiceDataUpdater.IsServiceStarted = true;
         
         try
         {
-            while (_serviceStarted)
+            while (ServiceDataUpdater.IsServiceStarted)
             {
-                for (var i = 0; i < _eqSlots.Count; i++)
-                {
-                    var eqSlot = _eqSlots[i];
-                    eqSlot.Quantity = CheatService.ReadMemoryValue<int>(_eqFirstSlotPointer, i * 0x200);
-                    StateHasChanged();
-                }
-
+                ServiceDataUpdater.TriggerUpdate();
+                
                 await Task.Delay(200);
             }
         }
@@ -89,21 +48,7 @@
     
     private void StopService()
     {
-        _serviceStarted = false;
+        ServiceDataUpdater.IsServiceStarted = false;
         StateHasChanged();
     }
-
-    private async Task OpenEditSlotValueDialog(EqSlotQuantity eqSlot)
-    {
-        var itemSlot = int.Parse(eqSlot.EqSlotDisplayName) - 1;
-        
-        var dialogParameters = new DialogParameters<EditSlotValueDialog>
-        {
-            { x=> x.PointerShift, itemSlot * 0x200},
-            { x => x.SlotAddress, _eqFirstSlotPointer}
-        };
-
-        await DialogService.ShowAsync<EditSlotValueDialog>("Change Slot Value", dialogParameters);
-    }
-
 }
