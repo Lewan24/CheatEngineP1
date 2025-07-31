@@ -65,12 +65,12 @@
     {
         var itemSlot = int.Parse(eqSlot.EqSlotDisplayName) - 1;
         
-        var dialogParameters = new DialogParameters<EditSlotValueDialog>
+        var dialogParameters = new DialogParameters<EditPointerValueDialog>
         {
             { x=> x.PointerShift, itemSlot * 0x200},
-            { x => x.SlotAddress, _eqFirstSlotPointer}
+            { x => x.Pointer, _eqFirstSlotPointer}
         };
 
-        await DialogService.ShowAsync<EditSlotValueDialog>("Change Slot Value", dialogParameters);
+        await DialogService.ShowAsync<EditPointerValueDialog>("Change Slot Value", dialogParameters);
     }
 }

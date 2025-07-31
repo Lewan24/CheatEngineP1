@@ -4,14 +4,13 @@
 
 @inject ISnackbar SnackBar
 @inject IProcessMemoryWriter CheatWriterService
-@inject IProcessMemoryReader CheatReaderService
 
 <MudDialog>
     <DialogContent>
-        <EditForm Model="@_changeSlotModel" OnValidSubmit="Submit">
+        <EditForm Model="@_changePointerModel" OnValidSubmit="Submit">
             <DataAnnotationsValidator/>
             
-            <MudTextField @bind-Value="@_changeSlotModel.NewSlotValue" T="int" For="@(() => _changeSlotModel.NewSlotValue)" Label="New Value"
+            <MudTextField @bind-Value="@_changePointerModel.NewValue" T="int" For="@(() => _changePointerModel.NewValue)" Label="New Value"
                           InputMode="InputMode.numeric" InputType="InputType.Number"/>
 
             <MudButton Color="Color.Success" Variant="Variant.Filled" ButtonType="ButtonType.Submit">Save</MudButton>
@@ -26,24 +25,16 @@
 @code{
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     
-    [Parameter] public ProcessMemoryPointerPath? SlotAddress { get; set; }
-    [Parameter] public long PointerShift { get; set; }
+    [Parameter] public ProcessMemoryPointerPath? Pointer { get; set; }
+    [Parameter] public long? PointerShift { get; set; }
 
-    private ChangeSlotValueModel _changeSlotModel = new();
+    private ChangePointerValueModel _changePointerModel = new();
     
     private void Submit()
     {
         try
         {
-            var actualSlotValue = CheatReaderService.ReadMemoryValue<int>(SlotAddress!, PointerShift);
-
-            if (actualSlotValue == 0)
-            {
-                SnackBar.Add("Can't edit empty eq slot.");
-                return;
-            }
-
-            CheatWriterService.WritePointerValue(SlotAddress!, PointerShift, _changeSlotModel.NewSlotValue);
+            CheatWriterService.WritePointerValue(Pointer!, PointerShift, _changePointerModel.NewValue);
             
             MudDialog.Close(DialogResult.Ok(true));
         }
@@ -56,10 +47,10 @@
     private void Cancel()
         => MudDialog.Cancel();
 
-    private record ChangeSlotValueModel
+    private record ChangePointerValueModel
     {
         [Required]
-        [Range(1, 9999)]
-        public int NewSlotValue { get; set; }
+        [Range(1, 10000)]
+        public int NewValue { get; set; }
     }
 }

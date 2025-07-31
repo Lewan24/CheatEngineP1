@@ -1,9 +1,11 @@
+@using CheatAppSample.Components.Pages.Dialogs
 @using CheatAppSample.Data.Services
 @using CheatEngineP1.Entities
 @using CheatEngineP1.Interfaces
 
 @inject ServiceDataUpdater ServiceDataUpdater
 @inject IProcessMemoryReader CheatServiceReader
+@inject IDialogService DialogService
 
 <MudItem xs="6" sm="3">
     <MudCard Elevation="5">
@@ -14,7 +16,7 @@
             <MudText Align="Align.Center" Typo="Typo.h6">@_value</MudText>
         </MudCardContent>
         <MudCardActions Class="d-flex justify-center">
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(!ServiceDataUpdater.IsServiceStarted)">Change</MudButton>
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(!ServiceDataUpdater.IsServiceStarted)" OnClick="@OpenEditStatValueDialog">Change</MudButton>
         </MudCardActions>
     </MudCard>
 </MudItem>
@@ -39,4 +41,13 @@
         StateHasChanged();
     }
 
+    private async Task OpenEditStatValueDialog()
+    {
+        var dialogParameters = new DialogParameters<EditPointerValueDialog>
+        {
+            { x => x.Pointer, Pointer}
+        };
+
+        await DialogService.ShowAsync<EditPointerValueDialog>("Change Stat Value", dialogParameters);
+    }
 }
