@@ -80,3 +80,29 @@ Visit the Releases section of this repository and download the latest version of
 1. Unzip the package
 2. Run the .exe file directly
 3. Enjoy full functionality without building from source!
+
+## 🗺 Roadmap
+Planned features for future releases:
+
+### 🔧 Ability to edit character stats, including:
+- Health (HP)
+- Stamina
+- Carry weight
+- Unused stat points
+- Technology points
+
+### 🛡 Godmode toggle
+- Prevent character from taking damage
+- Prevent character from loosing hunger
+- Instant heal every ~200 ms
+- Optional UI switch in MAUI to enable/disable
+  
+```bash
+✅ Suggestions and contributions are welcome – feel free to open issues or PRs!
+```
+
+## ⚠️ Disclaimer
+This tool is created for **educational** and **offline** use only.
+Using this software in online games or to violate terms of service is **strongly discouraged**.
+
+**You use this software at your own risk.**
