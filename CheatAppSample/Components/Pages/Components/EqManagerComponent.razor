@@ -53,6 +53,12 @@
     
     private void ReadAndSetEqSlots()
     {
+        if (!ServiceDataUpdater.IsServiceStarted)
+        {
+            StateHasChanged();
+            return;
+        }
+        
         for (var i = 0; i < _eqSlots.Count; i++)
         {
             var eqSlot = _eqSlots[i];

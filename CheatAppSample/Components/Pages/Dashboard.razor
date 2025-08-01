@@ -36,7 +36,7 @@
             {
                 ServiceDataUpdater.TriggerUpdate();
                 
-                await Task.Delay(200);
+                await Task.Delay(150);
             }
         }
         catch (Exception e)
@@ -49,6 +49,7 @@
     private void StopService()
     {
         ServiceDataUpdater.IsServiceStarted = false;
+        ServiceDataUpdater.TriggerUpdate();
         StateHasChanged();
     }
 }

@@ -35,7 +35,10 @@
     private void UpdateValue()
     {
         if (!ServiceDataUpdater.IsServiceStarted)
+        {
+            StateHasChanged();
             return;
+        }
         
         _value = CheatServiceReader.ReadMemoryValue<int>(Pointer);
         StateHasChanged();

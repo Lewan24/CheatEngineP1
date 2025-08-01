@@ -6,6 +6,7 @@
 @inject ServiceDataUpdater ServiceDataUpdater
 @inject IProcessMemoryWriter CheatWriterService
 @inject IProcessMemoryReader CheatReaderService
+@inject ISnackbar Snackbar
 
 <MudPaper Elevation="5" Class="p-4 mt-5" Width="100%">
     <MudGrid Justify="Justify.Center">
@@ -22,7 +23,7 @@
                     <MudText Align="Align.Center" Typo="Typo.h6">@_currentHealth</MudText>
                 </MudCardContent>
                 <MudCardActions Class="d-flex justify-center">
-                    <MudButton Color="@(_enableStopLoosingHealth ? Color.Success : Color.Error)" Variant="Variant.Filled" OnClick="ToggleEnablePreventLoosingHealth">Inf Health</MudButton>
+                    <MudButton Disabled="@(!ServiceDataUpdater.IsServiceStarted)" Color="@(_enableStopLoosingHealth ? Color.Success : Color.Error)" Variant="Variant.Filled" OnClick="ToggleEnablePreventLoosingHealth">Inf Health</MudButton>
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -38,11 +39,11 @@
                 <MudCardActions Class="d-flex justify-center">
                     @if (_enableStopLoosingHunger)
                     {
-                        <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="ResetHunger">Inf Hunger</MudButton>
+                        <MudButton Disabled="@(!ServiceDataUpdater.IsServiceStarted)" Color="Color.Success" Variant="Variant.Filled" OnClick="ResetHunger">Inf Hunger</MudButton>
                     }
                     else
                     {
-                        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="ToggleEnablePreventLoosingHunger">Inf Hunger</MudButton>
+                        <MudButton Disabled="@(!ServiceDataUpdater.IsServiceStarted)" Color="Color.Error" Variant="Variant.Filled" OnClick="ToggleEnablePreventLoosingHunger">Inf Hunger</MudButton>
                     }
                 </MudCardActions>
             </MudCard>
@@ -57,7 +58,7 @@
                     <MudText Align="Align.Center" Typo="Typo.h6">@_currentStamina</MudText>
                 </MudCardContent>
                 <MudCardActions Class="d-flex justify-center">
-                    <MudButton Color="@(_enableStopLoosingStamina ? Color.Success : Color.Error)" Variant="Variant.Filled" OnClick="ToggleEnablePreventLoosingStamina">Inf Stamina</MudButton>
+                    <MudButton Disabled="@(!ServiceDataUpdater.IsServiceStarted)" Color="@(_enableStopLoosingStamina ? Color.Success : Color.Error)" Variant="Variant.Filled" OnClick="ToggleEnablePreventLoosingStamina">Inf Stamina</MudButton>
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -73,11 +74,11 @@
                 <MudCardActions Class="d-flex justify-center">
                     @if (_enableInstantCrafting)
                     {
-                        <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="ResetWorkSpeed">Instant Crafting</MudButton>
+                        <MudButton Disabled="@(!ServiceDataUpdater.IsServiceStarted)" Color="Color.Success" Variant="Variant.Filled" OnClick="ResetWorkSpeed">Instant Crafting</MudButton>
                     }
                     else
                     {
-                        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="ToggleInstantCrafting">Instant Crafting</MudButton>
+                        <MudButton Disabled="@(!ServiceDataUpdater.IsServiceStarted)" Color="Color.Error" Variant="Variant.Filled" OnClick="ToggleInstantCrafting">Instant Crafting</MudButton>
                     }                
                 </MudCardActions>
             </MudCard>
@@ -92,7 +93,7 @@
                     <MudText Align="Align.Center" Typo="Typo.h6">@_currentShield</MudText>
                 </MudCardContent>
                 <MudCardActions Class="d-flex justify-center">
-                    <MudButton Color="@(_enableStopLoosingShield ? Color.Success : Color.Error)" Variant="Variant.Filled" OnClick="ToggleEnablePreventLoosingShield">Inf Shield</MudButton>
+                    <MudButton Disabled="@(!ServiceDataUpdater.IsServiceStarted)" Color="@(_enableStopLoosingShield ? Color.Success : Color.Error)" Variant="Variant.Filled" OnClick="ToggleEnablePreventLoosingShield">Inf Shield</MudButton>
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -117,7 +118,7 @@
     private readonly int _shieldMaxValue = 5_000_000;
     private int _currentShield;
     private bool _enableStopLoosingShield;
-
+    
     protected override void OnInitialized()
     {
         ServiceDataUpdater.OnUpdate += UpdateStats;
@@ -127,7 +128,10 @@
     private void UpdateStats()
     {
         if (!ServiceDataUpdater.IsServiceStarted)
+        {
+            StateHasChanged();
             return;
+        }
         
         _currentHunger = CheatReaderService.ReadMemoryValue<float>(GamePointers.CurrentHunger);
         _currentHealth = CheatReaderService.ReadMemoryValue<int>(GamePointers.CurrentHealth) / 1000;
@@ -141,7 +145,10 @@
     private void OverrideStats()
     {
         if (!ServiceDataUpdater.IsServiceStarted)
+        {
+            StateHasChanged();
             return;
+        }
         
         if (_enableStopLoosingHunger)
             CheatWriterService.WritePointerValue(GamePointers.CurrentHunger, null, _hungerMaxValue);
@@ -163,16 +170,25 @@
         
         if (_enableInstantCrafting)
             CheatWriterService.WritePointerValue(GamePointers.CurrentWorkSpeed, null, _workSpeedMaxValue);
+        
+        StateHasChanged();
     }
     
     private void ResetHunger()
     {
-        CheatWriterService.WritePointerValue(GamePointers.CurrentHunger, null, 50.0f);
+        CheatWriterService.WritePointerValue(GamePointers.CurrentHunger, null, 99.0f);
         
         ToggleEnablePreventLoosingHunger();
     }
+
     private void ToggleEnablePreventLoosingHunger()
     {
+        if (_currentHunger <= 2)
+        {
+            Snackbar.Add("Can't activate on low food. Eat something and try again.", Severity.Warning);
+            return;
+        }
+
         _enableStopLoosingHunger = !_enableStopLoosingHunger;
         StateHasChanged();
     }
