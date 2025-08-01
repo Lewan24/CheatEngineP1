@@ -40,16 +40,33 @@ This project was created for **educational purposes only**, with goals including
 
 ## 📸 Screenshots
 
-> *(Screenshots coming soon: e.g., inventory preview and value editor views)*
+![App UI Design](https://github.com/Lewan24/CheatEngineP1/blob/master/Media/CheatAppUI.png)
 
 ---
 
-## 🚀 Features
+## 🚀 Project Features
 
 - 🧭 **Automatic pointer resolution** (no manual updates needed)
 - 📖 **Clear API for reading/writing** unmanaged memory values
 - 🧩 **User-friendly MAUI interface** for interacting with game data
 - 🔧 **Generic API support** for `unmanaged` types (`int`, `float`, `long`, etc.)
+
+## 🚀 App Features
+Includes realtime access to player statistics like:
+- Health (HP)
+- Hunger
+- Stamina
+- Shield
+- Skill Points
+- Player Skills Points
+- Technology points
+
+🛡 Special buttons toggle that alows to:
+- Prevent from taking damage
+- Prevent from loosing hunger
+- Prevent from losing stamina
+- Instant craft and build
+- Prevent from loosing shield
 
 ---
 
@@ -80,22 +97,6 @@ Visit the Releases section of this repository and download the latest version of
 1. Unzip the package
 2. Run the .exe file directly
 3. Enjoy full functionality without building from source!
-
-## 🗺 Roadmap
-Planned features for future releases:
-
-### 🔧 Ability to edit character stats, including:
-- Health (HP)
-- Stamina
-- Carry weight
-- Unused stat points
-- Technology points
-
-### 🛡 Godmode toggle
-- Prevent character from taking damage
-- Prevent character from loosing hunger
-- Instant heal every ~200 ms
-- Optional UI switch in MAUI to enable/disable
   
 ```bash
 ✅ Suggestions and contributions are welcome – feel free to open issues or PRs!
