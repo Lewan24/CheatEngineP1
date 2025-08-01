@@ -33,7 +33,7 @@
                     <MudText Typo="Typo.body1" Align="Align.Center">Hunger</MudText>
                 </MudCardHeader>
                 <MudCardContent>
-                    <MudText Align="Align.Center" Typo="Typo.h6">@_currentHunger</MudText>
+                    <MudText Align="Align.Center" Typo="Typo.h6">@($"{_currentHunger:F2}")</MudText>
                 </MudCardContent>
                 <MudCardActions Class="d-flex justify-center">
                     @if (_enableStopLoosingHunger)
