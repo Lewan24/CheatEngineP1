@@ -1,31 +1,16 @@
-@using CheatEngineP1.Entities
+@using CheatAppSample.Data.Static
 
 <MudPaper Elevation="5" Class="p-4 mt-5" Width="100%">
     <MudGrid Justify="Justify.Center">
         <MudItem xs="12">
-            <MudText Align="Align.Center" Typo="Typo.h5">Character statistics</MudText>
+            <MudText Align="Align.Center" Typo="Typo.h5">Character Skills</MudText>
         </MudItem>
 
-        <CharacterStatGridItem Header="Max Health" Pointer="_maxHealthPointer"/>
-        <CharacterStatGridItem Header="Max Stamina" Pointer="_maxStaminaPointer"/>
-        <CharacterStatGridItem Header="Attack" Pointer="_attackPointer"/>
-        <CharacterStatGridItem Header="Defence" Pointer="_defencePointer"/>
-        <CharacterStatGridItem Header="Work Speed" Pointer="_workSpeedPointer"/>
-        <CharacterStatGridItem Header="Max Carry Weight" Pointer="_maxCarryWeightPointer"/>
-        <CharacterStatGridItem Header="Unused stat points" Pointer="_unusedStatPointsPointer"/>
-        <CharacterStatGridItem Header="Technology points" Pointer="_technologyPointsPointer"/>
+        <CharacterStatGridItem Header="Skill Points" Pointer="GamePointers.SkillPoints"/>
+        <CharacterStatGridItem Header="Technology points" Pointer="GamePointers.TechnologyPoints"/>
+        <CharacterStatGridItem Header="Special technology points" Pointer="GamePointers.SpecialTechnologyPoints"/>
+        
+        <CharacterStatGridItem Header="Health Skill Points" Pointer="GamePointers.HealthSkillPoints"/>
+        <CharacterStatGridItem Header="Attack Skill Points" Pointer="GamePointers.AttackSkillPoints"/>
     </MudGrid>
 </MudPaper>
-
-@code{
-    // TODO: Implement offsets to each character stat
-    
-    private ProcessMemoryPointerPath _maxHealthPointer = new(0x0, []);
-    private ProcessMemoryPointerPath _maxStaminaPointer = new(0x0, []);
-    private ProcessMemoryPointerPath _attackPointer = new(0x0, []);
-    private ProcessMemoryPointerPath _defencePointer = new(0x0, []);
-    private ProcessMemoryPointerPath _workSpeedPointer = new(0x0, []);
-    private ProcessMemoryPointerPath _maxCarryWeightPointer = new(0x0, []);
-    private ProcessMemoryPointerPath _unusedStatPointsPointer = new(0x0, []);
-    private ProcessMemoryPointerPath _technologyPointsPointer = new(0x0, []);
-}

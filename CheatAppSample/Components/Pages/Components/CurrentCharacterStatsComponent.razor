@@ -1,0 +1,210 @@
+@using CheatAppSample.Data.Services
+@using CheatAppSample.Data.Static
+@using CheatEngineP1.Entities
+@using CheatEngineP1.Interfaces
+
+@inject ServiceDataUpdater ServiceDataUpdater
+@inject IProcessMemoryWriter CheatWriterService
+@inject IProcessMemoryReader CheatReaderService
+
+<MudPaper Elevation="5" Class="p-4 mt-5" Width="100%">
+    <MudGrid Justify="Justify.Center">
+        <MudItem xs="12">
+            <MudText Align="Align.Center" Typo="Typo.h5">Current player stats</MudText>
+        </MudItem>
+
+        <MudItem xs="6" sm="4" lg="2">
+            <MudCard Elevation="5">
+                <MudCardHeader>
+                    <MudText Typo="Typo.body1" Align="Align.Center">Health</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Align="Align.Center" Typo="Typo.h6">@_currentHealth</MudText>
+                </MudCardContent>
+                <MudCardActions Class="d-flex justify-center">
+                    <MudButton Color="@(_enableStopLoosingHealth ? Color.Success : Color.Error)" Variant="Variant.Filled" OnClick="ToggleEnablePreventLoosingHealth">Inf Health</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="6" sm="4" lg="2">
+            <MudCard Elevation="5">
+                <MudCardHeader>
+                    <MudText Typo="Typo.body1" Align="Align.Center">Hunger</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Align="Align.Center" Typo="Typo.h6">@_currentHunger</MudText>
+                </MudCardContent>
+                <MudCardActions Class="d-flex justify-center">
+                    @if (_enableStopLoosingHunger)
+                    {
+                        <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="ResetHunger">Inf Hunger</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="ToggleEnablePreventLoosingHunger">Inf Hunger</MudButton>
+                    }
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="6" sm="4" lg="2">
+            <MudCard Elevation="5">
+                <MudCardHeader>
+                    <MudText Typo="Typo.body1" Align="Align.Center">Stamina</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Align="Align.Center" Typo="Typo.h6">@_currentStamina</MudText>
+                </MudCardContent>
+                <MudCardActions Class="d-flex justify-center">
+                    <MudButton Color="@(_enableStopLoosingStamina ? Color.Success : Color.Error)" Variant="Variant.Filled" OnClick="ToggleEnablePreventLoosingStamina">Inf Stamina</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="6" sm="4" lg="2">
+            <MudCard Elevation="5">
+                <MudCardHeader>
+                    <MudText Typo="Typo.body1" Align="Align.Center">Work Speed</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Align="Align.Center" Typo="Typo.h6">@_currentWorkSpeed</MudText>
+                </MudCardContent>
+                <MudCardActions Class="d-flex justify-center">
+                    @if (_enableInstantCrafting)
+                    {
+                        <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="ResetWorkSpeed">Instant Crafting</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="ToggleInstantCrafting">Instant Crafting</MudButton>
+                    }                
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="6" sm="4" lg="2">
+            <MudCard Elevation="5">
+                <MudCardHeader>
+                    <MudText Typo="Typo.body1" Align="Align.Center">Shield</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Align="Align.Center" Typo="Typo.h6">@_currentShield</MudText>
+                </MudCardContent>
+                <MudCardActions Class="d-flex justify-center">
+                    <MudButton Color="@(_enableStopLoosingShield ? Color.Success : Color.Error)" Variant="Variant.Filled" OnClick="ToggleEnablePreventLoosingShield">Inf Shield</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code{
+    private readonly float _hungerMaxValue = 100.0f;
+    private float _currentHunger;
+    private bool _enableStopLoosingHunger;
+    
+    private int _currentHealth;
+    private bool _enableStopLoosingHealth;
+    
+    private int _currentStamina;
+    private bool _enableStopLoosingStamina;
+    
+    private readonly int _workSpeedMaxValue = 9_999_999;
+    private int _currentWorkSpeed;
+    private bool _enableInstantCrafting;
+    
+    private readonly int _shieldMaxValue = 5_000_000;
+    private int _currentShield;
+    private bool _enableStopLoosingShield;
+
+    protected override void OnInitialized()
+    {
+        ServiceDataUpdater.OnUpdate += UpdateStats;
+        ServiceDataUpdater.OnUpdate += OverrideStats;
+    }
+
+    private void UpdateStats()
+    {
+        if (!ServiceDataUpdater.IsServiceStarted)
+            return;
+        
+        _currentHunger = CheatReaderService.ReadMemoryValue<float>(GamePointers.CurrentHunger);
+        _currentHealth = CheatReaderService.ReadMemoryValue<int>(GamePointers.CurrentHealth) / 1000;
+        _currentStamina = CheatReaderService.ReadMemoryValue<int>(GamePointers.CurrentStamina) / 1000;
+        _currentShield = CheatReaderService.ReadMemoryValue<int>(GamePointers.CurrentShield) / 1000;
+        _currentWorkSpeed = CheatReaderService.ReadMemoryValue<int>(GamePointers.CurrentWorkSpeed);
+        
+        StateHasChanged();
+    }
+
+    private void OverrideStats()
+    {
+        if (!ServiceDataUpdater.IsServiceStarted)
+            return;
+        
+        if (_enableStopLoosingHunger)
+            CheatWriterService.WritePointerValue(GamePointers.CurrentHunger, null, _hungerMaxValue);
+
+        if (_enableStopLoosingHealth)
+        {
+            var maxHealth = 500 + CheatReaderService.ReadMemoryValue<int>(GamePointers.HealthSkillPoints) * 100;
+            CheatWriterService.WritePointerValue(GamePointers.CurrentHealth, null, maxHealth * 1000);
+        }
+
+        if (_enableStopLoosingStamina)
+        {
+            var maxStamina = 100 + CheatReaderService.ReadMemoryValue<int>(GamePointers.StaminaSkillPoints) * 10;
+            CheatWriterService.WritePointerValue(GamePointers.CurrentStamina, null, maxStamina * 1_000);
+        }
+        
+        if (_enableStopLoosingShield)
+            CheatWriterService.WritePointerValue(GamePointers.CurrentShield, null, _shieldMaxValue);
+        
+        if (_enableInstantCrafting)
+            CheatWriterService.WritePointerValue(GamePointers.CurrentWorkSpeed, null, _workSpeedMaxValue);
+    }
+    
+    private void ResetHunger()
+    {
+        CheatWriterService.WritePointerValue(GamePointers.CurrentHunger, null, 50.0f);
+        
+        ToggleEnablePreventLoosingHunger();
+    }
+    private void ToggleEnablePreventLoosingHunger()
+    {
+        _enableStopLoosingHunger = !_enableStopLoosingHunger;
+        StateHasChanged();
+    }
+
+    private void ToggleEnablePreventLoosingHealth()
+    {
+        _enableStopLoosingHealth = !_enableStopLoosingHealth;
+        StateHasChanged();
+    }
+
+    private void ToggleEnablePreventLoosingStamina()
+    {
+        _enableStopLoosingStamina = !_enableStopLoosingStamina;
+        StateHasChanged();
+    }
+
+    private void ResetWorkSpeed()
+    {
+        var normalWorkSpeed = 100 + CheatReaderService.ReadMemoryValue<int>(GamePointers.WorkSpeedSkillPoints) * 50;
+        CheatWriterService.WritePointerValue(GamePointers.CurrentWorkSpeed, null, normalWorkSpeed);
+        
+        ToggleInstantCrafting();
+    }
+    private void ToggleInstantCrafting()
+    {
+        _enableInstantCrafting = !_enableInstantCrafting;
+        StateHasChanged();
+    }
+
+    private void ToggleEnablePreventLoosingShield()
+    {
+        _enableStopLoosingShield = !_enableStopLoosingShield;
+        StateHasChanged();
+    }
+}

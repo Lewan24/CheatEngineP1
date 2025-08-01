@@ -10,16 +10,18 @@
         <EditForm Model="@_changePointerModel" OnValidSubmit="Submit">
             <DataAnnotationsValidator/>
             
-            <MudTextField @bind-Value="@_changePointerModel.NewValue" T="int" For="@(() => _changePointerModel.NewValue)" Label="New Value"
-                          InputMode="InputMode.numeric" InputType="InputType.Number"/>
-
-            <MudButton Color="Color.Success" Variant="Variant.Filled" ButtonType="ButtonType.Submit">Save</MudButton>
+            <MudCard Elevation="5" Class="p-4 m-4">
+                <MudCardContent>
+                    <MudTextField @bind-Value="@_changePointerModel.NewValue" T="int" For="@(() => _changePointerModel.NewValue)" Label="New Value"
+                                  InputMode="InputMode.numeric" InputType="InputType.Number"/>
+                </MudCardContent>
+                <MudCardActions Class="d-flex flex-row flex-nowrap justify-content-between">
+                    <MudButton Color="Color.Success" Variant="Variant.Filled" ButtonType="ButtonType.Submit">Save</MudButton>
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Cancel">Close</MudButton>
+                </MudCardActions>
+            </MudCard>
         </EditForm>
     </DialogContent>
-    
-    <DialogActions>
-        <MudButton OnClick="@Cancel">Close</MudButton>
-    </DialogActions>
 </MudDialog>
 
 @code{
@@ -27,7 +29,7 @@
     
     [Parameter] public ProcessMemoryPointerPath? Pointer { get; set; }
     [Parameter] public long? PointerShift { get; set; }
-
+    
     private ChangePointerValueModel _changePointerModel = new();
     
     private void Submit()
